@@ -44,8 +44,8 @@ if (!connectionString) {
     })
   };
 } else {
-  // Create postgres connection
-  const client = postgres(connectionString);
+  // Create postgres connection with SSL required for Render
+  const client = postgres(connectionString, { ssl: 'require' });
   
   // Create drizzle instance
   db = drizzle(client, { schema });
