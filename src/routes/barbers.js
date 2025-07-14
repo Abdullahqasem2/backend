@@ -299,16 +299,23 @@ router.get('/:id/schedule', async (req, res) => {
       .from(barberAvailability)
       .where(and(eq(barberAvailability.barberId, id), eq(barberAvailability.date, date)));
     const isAvailable = availability.length === 0 ? true : availability[0].isAvailable;
-    let timeSlots = [];
-    if (isAvailable) {
-      // Generate all time slots (including reserved and unavailable)
-      timeSlots = generateAllTimeSlots(
-        barber[0].openTime,
-        barber[0].closeTime,
-        barber[0].haircutDuration,
-        existingReservations,
-        unavailableSlots
-      );
+
+    // Always generate all time slots
+    let timeSlots = generateAllTimeSlots(
+      barber[0].openTime,
+      barber[0].closeTime,
+      barber[0].haircutDuration,
+      existingReservations,
+      unavailableSlots
+    );
+
+    // If the day is not available, mark all slots as unavailable
+    if (!isAvailable) {
+      timeSlots = timeSlots.map(slot => ({
+        ...slot,
+        unavailable: true,
+        reserved: false
+      }));
     }
     res.json({
       barber: {
