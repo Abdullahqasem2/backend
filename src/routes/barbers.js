@@ -301,8 +301,8 @@ router.get('/:id/schedule', async (req, res) => {
     const isAvailable = availability.length === 0 ? true : availability[0].isAvailable;
     let timeSlots = [];
     if (isAvailable) {
-      // Generate available time slots
-      timeSlots = generateTimeSlots(
+      // Generate all time slots (including reserved and unavailable)
+      timeSlots = generateAllTimeSlots(
         barber[0].openTime,
         barber[0].closeTime,
         barber[0].haircutDuration,
