@@ -8,8 +8,8 @@
     "dev": "nodemon index.js",
     "start": "node index.js",
     "build": "echo 'No build step required'",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:generate": "drizzle-kit generate:pg --out drizzle/migrations --schema src/db/schema.js",
+    "db:migrate": "node migrate.js",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

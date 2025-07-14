@@ -4,9 +4,10 @@
  * @param {string} closeTime - Barber's closing time (HH:MM format)
  * @param {number} haircutDuration - Duration of each haircut in minutes
  * @param {Array} existingReservations - Array of existing reservations for the date
+ * @param {Array} unavailableSlots - Array of unavailable time slots for the date
  * @returns {Array} Array of available time slots
  */
-export function generateTimeSlots(openTime, closeTime, haircutDuration, existingReservations = []) {
+export function generateTimeSlots(openTime, closeTime, haircutDuration, existingReservations = [], unavailableSlots = []) {
   const slots = [];
   
   // Convert times to minutes for easier calculation
@@ -22,9 +23,58 @@ export function generateTimeSlots(openTime, closeTime, haircutDuration, existing
       reservation.time === timeString
     );
     
+    // Check if this slot is marked as unavailable
+    const isUnavailable = unavailableSlots.some(slot => 
+      slot.time === timeString && slot.isUnavailable
+    );
+    
+    // Only include slots that are not reserved and not unavailable
+    if (!isReserved && !isUnavailable) {
+      slots.push({
+        time: timeString,
+        reserved: false,
+        formatted: formatTimeForDisplay(timeString)
+      });
+    }
+  }
+  
+  return slots;
+}
+
+/**
+ * Generate ALL time slots for a barber on a specific date (for barber dashboard)
+ * @param {string} openTime - Barber's opening time (HH:MM format)
+ * @param {string} closeTime - Barber's closing time (HH:MM format)
+ * @param {number} haircutDuration - Duration of each haircut in minutes
+ * @param {Array} existingReservations - Array of existing reservations for the date
+ * @param {Array} unavailableSlots - Array of unavailable time slots for the date
+ * @returns {Array} Array of all time slots with status
+ */
+export function generateAllTimeSlots(openTime, closeTime, haircutDuration, existingReservations = [], unavailableSlots = []) {
+  const slots = [];
+  
+  // Convert times to minutes for easier calculation
+  const openMinutes = timeToMinutes(openTime);
+  const closeMinutes = timeToMinutes(closeTime);
+  
+  // Generate slots every haircutDuration minutes
+  for (let time = openMinutes; time < closeMinutes; time += haircutDuration) {
+    const timeString = minutesToTime(time);
+    
+    // Check if this slot is already reserved
+    const isReserved = existingReservations.some(reservation => 
+      reservation.time === timeString
+    );
+    
+    // Check if this slot is marked as unavailable
+    const isUnavailable = unavailableSlots.some(slot => 
+      slot.time === timeString && slot.isUnavailable
+    );
+    
     slots.push({
       time: timeString,
-      available: !isReserved,
+      reserved: isReserved,
+      unavailable: isUnavailable,
       formatted: formatTimeForDisplay(timeString)
     });
   }
