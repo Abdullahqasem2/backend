@@ -65,15 +65,12 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server with migrations
+// Start server
 async function startServer() {
   try {
-    // Run migrations on startup (only in production)
-    if (process.env.NODE_ENV === 'production') {
-      console.log('Running database migrations...');
-      await runMigrations();
-      console.log('Migrations completed successfully!');
-    }
+    // Temporarily skip migrations due to SSL issues
+    // TODO: Fix SSL configuration for migrations
+    console.log('Skipping migrations for now...');
     
     app.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
