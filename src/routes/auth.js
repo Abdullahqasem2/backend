@@ -118,6 +118,23 @@ router.post('/signup', async (req, res) => {
       }
     }
 
+    // Get barber ID if user is a barber
+    let barberId = null;
+    if (role === 'barber') {
+      if (process.env.DATABASE_URL) {
+        const barberResult = await db.select({ id: barbers.id }).from(barbers).where(eq(barbers.userId, newUser.id)).limit(1);
+        if (barberResult.length > 0) {
+          barberId = barberResult[0].id;
+        }
+      } else {
+        // Demo mode
+        const barber = demoData.getBarbers().find(b => b.userId === newUser.id);
+        if (barber) {
+          barberId = barber.id;
+        }
+      }
+    }
+
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'demo-secret-key-for-testing';
     const token = jwt.sign(
@@ -134,7 +151,8 @@ router.post('/signup', async (req, res) => {
         role: newUser.role,
         email: newUser.email,
         fullName: newUser.fullName,
-        phone: newUser.phone
+        phone: newUser.phone,
+        barberId
       }
     });
 
@@ -176,6 +194,23 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
+    // Get barber ID if user is a barber
+    let barberId = null;
+    if (user.role === 'barber') {
+      if (process.env.DATABASE_URL) {
+        const barberResult = await db.select({ id: barbers.id }).from(barbers).where(eq(barbers.userId, user.id)).limit(1);
+        if (barberResult.length > 0) {
+          barberId = barberResult[0].id;
+        }
+      } else {
+        // Demo mode
+        const barber = demoData.getBarbers().find(b => b.userId === user.id);
+        if (barber) {
+          barberId = barber.id;
+        }
+      }
+    }
+
     // Generate JWT token
     const jwtSecret = process.env.JWT_SECRET || 'demo-secret-key-for-testing';
     const token = jwt.sign(
@@ -192,7 +227,8 @@ router.post('/login', async (req, res) => {
         role: user.role,
         email: user.email,
         fullName: user.fullName,
-        phone: user.phone
+        phone: user.phone,
+        barberId
       }
     });
 
