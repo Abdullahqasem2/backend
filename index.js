@@ -7,6 +7,7 @@ import dotenv from 'dotenv';
 import authRoutes from './src/routes/auth.js';
 import barberRoutes from './src/routes/barbers.js';
 import reservationRoutes from './src/routes/reservations.js';
+import { runMigrations } from './migrate.js';
 
 dotenv.config();
 
@@ -64,11 +65,27 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Start server with migrations
+async function startServer() {
+  try {
+    // Run migrations on startup (only in production)
+    if (process.env.NODE_ENV === 'production') {
+      console.log('Running database migrations...');
+      await runMigrations();
+      console.log('Migrations completed successfully!');
+    }
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 Server running on port ${PORT}`);
+      console.log(`📊 Health check: http://localhost:${PORT}/health`);
+      console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();
 
 export default app; 
