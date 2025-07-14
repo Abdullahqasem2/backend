@@ -27,9 +27,7 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com', 'https://expo.dev'] 
-    : ['http://localhost:3000', 'http://localhost:8081', 'exp://localhost:8081', 'exp://192.168.1.2:8081'],
+  origin: '*', // Allow all origins
   credentials: true
 }));
 
