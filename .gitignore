@@ -49,5 +49,5 @@ jspm_packages/
 # Vercel
 .vercel
 
-# Drizzle
-drizzle/ 
+# Drizzle (keep migrations)
+drizzle/*.sql 
